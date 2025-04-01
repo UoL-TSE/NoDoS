@@ -1,15 +1,17 @@
 import os
-from socketserver import ForkingMixIn, TCPServer as _TCPServer, ThreadingMixIn
+import socketserver
+import socketserver
+
 
 """
 If running on Windows, use the threading mixin as the
 Windows kernel is optimised for threading rather than forking
 """
 if os.name == "nt":
-    MixIn = ThreadingMixIn
+    MixIn = socketserver.ThreadingMixIn
 else:
-    MixIn = ForkingMixIn
+    MixIn = socketserver.ForkingMixIn
 
 
-class TCPServer(MixIn, _TCPServer):
+class TCPServer(MixIn, socketserver.TCPServer):
     pass
