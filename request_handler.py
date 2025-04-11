@@ -1,45 +1,68 @@
 import socket
 import threading
+import time
+import logging
 from socketserver import BaseRequestHandler
 from config import config
 
-# Class for handling requests
-# Inherits from BaseRequestHandler
+# Setup logging
+logging.basicConfig(filename='dos_protection.log', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+# In-memory storage for IP request tracking and blocks
+request_counts = {}
+blocked_ips = {}
+lock = threading.Lock()
+BLOCK_DURATION = 60  # seconds
+
 class RequestHandler(BaseRequestHandler):
     def handle(self):
-        # self.rfile: File like object to handle recieving data
-        # self.wfile: File like object to handle response
-        
-        print(f"Request from {self.client_address}")
+        client_ip = self.client_address[0]
 
-        # Connect to underlying server
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((config.real_host, config.real_port))
+        # Check if IP is blocked
+        with lock:
+            if client_ip in blocked_ips:
+                if time.time() < blocked_ips[client_ip]:
+                    logging.warning(f"Blocked request from {client_ip}")
+                    return
+                else:
+                    del blocked_ips[client_ip]
 
-        # Initialize threads for both forwarding to the server and the client
-        in_thread = threading.Thread(target=self.forward, args=(self.request, self.sock))
-        out_thread = threading.Thread(target=self.forward, args=(self.sock, self.request))
+        # Rate limiting
+        now = time.time()
+        with lock:
+            history = request_counts.get(client_ip, [])
+            history = [t for t in history if now - t < 1]
+            history.append(now)
+            request_counts[client_ip] = history
 
-        # Start the threads
-        in_thread.start()
-        out_thread.start()
+            if len(history) > config.max_requests_per_second:
+                logging.warning(f"Too many requests from {client_ip}. Temporarily blocked.")
+                blocked_ips[client_ip] = now + BLOCK_DURATION
+                return
 
-        # Join (wait for completion) the threads
-        in_thread.join()
-        out_thread.join()
+        logging.info(f"Request from {client_ip}")
+
+        try:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect((config.real_host, config.real_port))
+
+            in_thread = threading.Thread(target=self.forward, args=(self.request, self.sock))
+            out_thread = threading.Thread(target=self.forward, args=(self.sock, self.request))
+
+            in_thread.start()
+            out_thread.start()
+
+            in_thread.join()
+            out_thread.join()
+        except Exception as e:
+            logging.error(f"Error handling request from {client_ip}: {e}")
 
     def forward(self, in_sock, out_sock):
-        # Store recieved bytes
-        n_bytes: int = 0
-
-        # While the bytes transferred are less than the maximum allowed per request
+        n_bytes = 0
         while n_bytes < config.max_bytes_per_request:
-            chunk = in_sock.recv(4096) 
-            out_sock.send(chunk)
-            
-            # If an empty chunk is found, end of transmission
-            if chunk == b'':
+            chunk = in_sock.recv(4096)
+            if not chunk:
                 break
-            
-            # Count length of new chunk
+            out_sock.send(chunk)
             n_bytes += len(chunk)
