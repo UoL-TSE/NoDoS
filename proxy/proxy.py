@@ -1,8 +1,8 @@
-from config import config
-from request_handler import RequestHandler
-from tcp_server import TCPServer
+from .config import config
+from .request_handler import RequestHandler
+from .tcp_server import TCPServer
 
-if __name__ == "__main__":
+def run_proxy():
     print(f"Running on {config.host}:{config.port}")
     print(f"Forwarding for {config.real_host}:{config.real_port}")
     
