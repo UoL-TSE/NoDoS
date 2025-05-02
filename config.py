@@ -19,8 +19,13 @@ class Config:
 
     host: str = ""
     port: int = 0
+
+    admin_host: str = ""
+    admin_port: int = 0
+
     real_host: str = ""
     real_port: int = 0
+    
     max_bytes_per_request: int = 0
     max_bytes_per_response: int = 0
     max_requests_per_second: float = 0.0

@@ -41,7 +41,7 @@ If you are doing this at the command line, follow the following instructions.<br
 Once in a virtual environment you first need to install all of the python dependencies.<br>
 To do this execute the command `pip install -r requirements.txt`.
 
-Then to run the proxy execute the command `python main.py`.
+Then to run the admin panel (which spawns the proxies) in one terminal execute the command `python main.py`.<br>
 
 Out of the box, the proxy will not have any server to forward data to/from.<br>
-An easy way to run a server to test with is with the `python -m http.server` command.
+An easy way to run a server to test with is with the `python -m http.server [PORT]` command.

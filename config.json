@@ -1,8 +1,13 @@
 {
     "host": "localhost",
     "port": 8080,
+
+    "admin_host": "localhost",
+    "admin_port": 8081,
+    
     "real_host": "localhost",
     "real_port": 8000,
+    
     "max_bytes_per_request": 32767,
     "max_bytes_per_response": 32767,
     "max_requests_per_second": 10.0

@@ -4,7 +4,7 @@ import time
 import logging
 from socketserver import BaseRequestHandler
 
-from .config import config
+from config import config
 
 # Setup logging
 logging.basicConfig(filename='dos_protection.log', level=logging.INFO,

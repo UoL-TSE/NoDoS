@@ -1,5 +1,5 @@
-from proxy.main import run_proxy
+from admin.main import run_admin_panel
 
 if __name__ == "__main__":
-    # Run proxy on the main thread
-    run_proxy()
+    # Run the admin panel
+    run_admin_panel(True)
