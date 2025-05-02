@@ -1,3 +1,0 @@
-# NoDoS
-
-DDoS protection

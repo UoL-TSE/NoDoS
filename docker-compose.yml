@@ -1,0 +1,8 @@
+services:
+  db:
+    image: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: nodos-pass
+    ports:
+      - "3306:3306"   # NoDoS proxy port
