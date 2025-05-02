@@ -15,7 +15,7 @@ These commands should be executed in the working directory of this project.
 For example
 
 # Running the proxy
-To run the proxy execute the command `python3 src/main.py`
+To run the proxy execute the command `python3 proxy/main.py`
 
 As is the proxy will not have any server to forward data to/from.
 An easy way to run a server to test with is with the `python -m http.server` command
