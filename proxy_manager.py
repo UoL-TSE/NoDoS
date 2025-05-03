@@ -1,10 +1,14 @@
 from multiprocessing import Process, Lock
 
-from fastapi import HTTPException
-
 from config import config
 from proxy.request_handler import RequestHandler
 from proxy.tcp_server import TCPServer
+
+
+class ProxyNotFound(Exception):
+    def __init__(self, proxy_id: int):
+        super().__init__(f"Proxy with ID {proxy_id} was not found")
+
 
 def _run_proxy():
     # Initialise TCPServer
@@ -57,10 +61,10 @@ class _ProxyManager:
         process.start()
         return proxy_id
 
-    async def terminate(self, proxy_id: int):
+    def terminate(self, proxy_id: int):
         # If the process_id doesn't point to a process, raise HTTP 404
         if proxy_id > len(self.proxies)-1 or self.proxies[proxy_id].exitcode is not None:
-            raise HTTPException(status_code=404, detail=f"Process with id {proxy_id} was not found.")
+            raise ProxyNotFound(proxy_id)
         
         # Get the proxy and assert its existence as it should exist
         proxy = self.proxies[proxy_id]

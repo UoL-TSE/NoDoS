@@ -6,3 +6,5 @@ services:
       MYSQL_ROOT_PASSWORD: nodos-pass
     ports:
       - "3306:3306"   # NoDoS proxy port
+    volumes:
+      - ./mysql_db:/var/lib/mysql
