@@ -3,8 +3,10 @@ services:
     image: mysql
     restart: unless-stopped
     environment:
+      MYSQL_DATABASE: nodos
       MYSQL_ROOT_PASSWORD: nodos-pass
     ports:
       - "3306:3306"   # NoDoS proxy port
     volumes:
-      - ./mysql_db:/var/lib/mysql
+      - ./mysql_db/data:/var/lib/mysql
+      - ./mysql_db/auto_execute:/var/lib/mysql

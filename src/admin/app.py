@@ -1,3 +1,4 @@
+from pathlib import Path
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -8,7 +9,9 @@ from proxy_manager import ProxyNotFound, proxy_manager
 app = FastAPI()
 
 # Serve pages directory as a static site
-app.mount("/pages", StaticFiles(directory="admin/pages"), "pages")
+admin_dir = Path(__file__).parent.absolute()
+pages_dir = f"{admin_dir}/pages"
+app.mount("/pages", StaticFiles(directory=pages_dir), "pages")
 
 
 # Endpoint to spawn instance of proxy
