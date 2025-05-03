@@ -4,7 +4,9 @@ import time
 import logging
 from socketserver import BaseRequestHandler
 
-from config import config
+from models import Config
+
+config: Config | None = None
 
 # Setup logging
 logging.basicConfig(filename='dos_protection.log', level=logging.INFO,
@@ -18,6 +20,8 @@ BLOCK_DURATION = 60  # seconds
 
 class RequestHandler(BaseRequestHandler):
     def handle(self):
+        assert config
+
         client_ip = self.client_address[0]
 
         # Check if IP is blocked
@@ -37,7 +41,7 @@ class RequestHandler(BaseRequestHandler):
             history.append(now)
             request_counts[client_ip] = history
 
-            if len(history) > config.max_requests_per_second:
+            if config.max_requests_per_second and len(history) > config.max_requests_per_second:
                 logging.warning(f"Too many requests from {client_ip}. Temporarily blocked.")
                 blocked_ips[client_ip] = now + BLOCK_DURATION
                 return
@@ -60,8 +64,10 @@ class RequestHandler(BaseRequestHandler):
             logging.error(f"Error handling request from {client_ip}: {e}")
 
     def forward(self, in_sock, out_sock):
+        assert config
+
         n_bytes = 0
-        while n_bytes < config.max_bytes_per_request:
+        while not config.max_bytes_per_request or n_bytes < config.max_bytes_per_request:
             chunk = in_sock.recv(4096)
             if not chunk:
                 break

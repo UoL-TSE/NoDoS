@@ -1,6 +1,6 @@
 services:
   db:
-    image: mysql
+    image: mysql:9.3.0
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: nodos
@@ -8,5 +8,8 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./mysql_db/data:/var/lib/mysql
-      - ./mysql_db/auto_execute:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/mysql
+      - ./mysql_init:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  db_data:

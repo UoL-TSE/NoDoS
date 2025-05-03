@@ -1,8 +1,9 @@
 from multiprocessing import Process, Lock
 
-from config import config
+import proxy.request_handler
 from proxy.request_handler import RequestHandler
 from proxy.tcp_server import TCPServer
+from models import Config
 
 
 class ProxyNotFound(Exception):
@@ -10,12 +11,14 @@ class ProxyNotFound(Exception):
         super().__init__(f"Proxy with ID {proxy_id} was not found")
 
 
-def _run_proxy():
+def _run_proxy(config: Config):
+    proxy.request_handler.config = config
+
     # Initialise TCPServer
     server: TCPServer | None
     try:
-        server = TCPServer((config.host, config.port), RequestHandler)
-        print(f"Running proxy on {config.host}:{config.port}",
+        server = TCPServer((config.proxy_host, config.proxy_port), RequestHandler)
+        print(f"Running proxy on {config.proxy_host}:{config.proxy_port}",
               f"Forwarding for {config.real_host}:{config.real_port}",
               sep="\n")
 
@@ -44,11 +47,11 @@ class _ProxyManager:
 
         return None
 
-    async def new(self):
+    async def new(self, config: Config):
         # Create new process and add it to the list
         with self.proxies_lock:
             proxy_id = self.get_new_id()
-            process = Process(target=_run_proxy)
+            process = Process(target=_run_proxy, args=(config,))
 
             if proxy_id is None:
                 self.proxies.append(process)

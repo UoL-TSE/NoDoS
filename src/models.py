@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 
 
 class Config(BaseModel):
+    name: str                   = Field(..., max_length=64,  description="Name to save the config under")
     proxy_host: str             = Field(...,                 description="Host that the proxy will run on")
     proxy_port: int             = Field(..., gt=0, le=65535, description="Port that the proxy will run on")
 
@@ -12,3 +13,12 @@ class Config(BaseModel):
     max_bytes_per_request:  int | None      = Field(None, ge=0, description="Maximum number of bytes per request")
     max_bytes_per_response: int | None      = Field(None, ge=0, description="Maximum number of bytes per response")
     max_requests_per_second: float | None   = Field(None, ge=0, description="Maximum number of requests per second")
+
+
+class MetaConfig(BaseModel):
+    config_id: int                          = Field(..., description="Unique identifier for the config")
+    config_name: str                        = Field(..., description="Configuration name")
+
+
+class Configs(BaseModel):
+    configs: list[MetaConfig]             = Field(..., description="List of config names with their respective ids")
