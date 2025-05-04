@@ -22,3 +22,11 @@ class MetaConfig(BaseModel):
 
 class Configs(BaseModel):
     configs: list[MetaConfig]             = Field(..., description="List of config names with their respective ids")
+
+class Proxy(BaseModel):
+    proxy_id: int                          = Field(..., description="Unique identifier for the proxy")
+    status: bool                           = Field(..., description="Status of the proxy")
+    exit_code: int | None                  = Field(None, description="Exit code of the proxy if it has exited") 
+
+class Proxies(BaseModel):
+    proxies: list[Proxy]                  = Field(..., description="List of proxies with their respective ids and status")

@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 
 from proxy_manager import ProxyNotFound, proxy_manager
 from db import DB
-from models import Config, Configs
+from models import Config, Configs, Proxies
 from db_exceptions import ConfigNotFoundException
 
 # Initialize app
@@ -41,21 +41,23 @@ async def terminate_proxy(proxy_id: int):
 
 # Get all proxies that are running
 @app.get("/proxy/all", tags=["Proxies"])
-async def all_proxies() -> list[dict]:
+async def all_proxies() -> Proxies:
     # Get all proxies that are running
     proxies = proxy_manager.allproxies()
 
     if not proxies:
         raise HTTPException(status_code=404, detail="No proxies running")
 
-    return [
-        {
-            "Proxy ID": proxy.pid,
-            "Status": proxy.exitcode is None,
-            "Exit Code": proxy.exitcode
-        }
-        for proxy in proxies
-    ]
+    return Proxies(
+        proxies=[
+            {
+                "Proxy ID": i,
+                "Status": proxy.is_alive(),
+                "Exit Code": proxy.exitcode
+            } for i, proxy in enumerate(proxies)
+        ]
+    )
+    
 
 
 # Create a new config
