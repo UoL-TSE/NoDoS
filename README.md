@@ -21,6 +21,10 @@ The following commands should be executed in the working directory of this proje
 To run the database execute the command `docker compose up -d`.<br>
 This will run the MySQL instance, accessible via port 3306 on the host.
 
+When modifying anything in the `mysql_init` folder, you need to remove the docker volume associated with the database before you can re run it to execute those scripts.<br>
+To do this just execute the command `docker compose down --volumes` and start it again regularly.<br>
+WARNING! THIS WILL DELETE ANY DATA INSIDE THE DATABASE!
+
 
 ### Running the proxy
 #### Creating a virtual environment
@@ -41,7 +45,9 @@ If you are doing this at the command line, follow the following instructions.<br
 Once in a virtual environment you first need to install all of the python dependencies.<br>
 To do this execute the command `pip install -r requirements.txt`.
 
-Then to run the admin panel (which spawns the proxies) in one terminal execute the command `python main.py`.<br>
+Then to run the admin panel (which spawns the proxies) in one terminal execute the command `python src/main.py`.<br>
 
 Out of the box, the proxy will not have any server to forward data to/from.<br>
 An easy way to run a server to test with is with the `python -m http.server [PORT]` command.
+
+Once the program is running view <http://localhost:8080/docs> to view the swagger documentation.<br>

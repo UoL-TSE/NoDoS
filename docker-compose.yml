@@ -1,12 +1,15 @@
 services:
   db:
-    image: mysql
+    image: mysql:9.3.0
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: nodos
       MYSQL_ROOT_PASSWORD: nodos-pass
     ports:
-      - "3306:3306"   # NoDoS proxy port
+      - "3306:3306"
     volumes:
-      - ./mysql_db/data:/var/lib/mysql
-      - ./mysql_db/auto_execute:/var/lib/mysql
+      - db_data:/var/lib/mysql
+      - ./mysql_init:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  db_data:
