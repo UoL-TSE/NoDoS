@@ -77,5 +77,10 @@ class _ProxyManager:
         proxy.terminate()
         proxy.join()
 
+    def allproxies(self) -> list[Process]:
+        # Return all proxies
+        return self.proxies
+
+
 
 proxy_manager = _ProxyManager()

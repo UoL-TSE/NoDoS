@@ -37,6 +37,25 @@ async def terminate_proxy(proxy_id: int):
         proxy_manager.terminate(proxy_id)
     except ProxyNotFound as e:
         raise HTTPException(status_code=404, detail=str(e))
+    
+
+# Get all proxies that are running
+@app.get("/proxy/all", tags=["Proxies"])
+async def all_proxies() -> list[dict]:
+    # Get all proxies that are running
+    proxies = proxy_manager.allproxies()
+
+    if not proxies:
+        raise HTTPException(status_code=404, detail="No proxies running")
+
+    return [
+        {
+            "Proxy ID": proxy.pid,
+            "Status": proxy.exitcode is None,
+            "Exit Code": proxy.exitcode
+        }
+        for proxy in proxies
+    ]
 
 
 # Create a new config
