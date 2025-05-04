@@ -1,10 +1,94 @@
-<!doctype HTML>
-<html>
-    <head>
-        <title>NoDoS Admin Panel</title>
-    </head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NoDoS Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+  <div class="max-w-6xl mx-auto">
+    <header class="text-center mb-10">
+      <h1 class="text-4xl font-bold text-gray-800">🛡️ NoDoS IP Monitor</h1>
+      <p class="text-gray-600 mt-2">Live IP Monitoring Dashboard</p>
+    </header>
 
-    <body>
-        <h1>Welcome to the NoDoS Admin Panel</h1>
-    </body>
+    <!-- Connected IPs -->
+    <section class="mb-8">
+      <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-2xl font-semibold mb-4">Current Connected IPs</h2>
+        <ul id="connected-ips" class="list-disc pl-5 text-gray-700 space-y-1"></ul>
+      </div>
+    </section>
+
+    <!-- Whitelist & Blacklist -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-green-100 p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold text-green-800 mb-4">Whitelisted IPs</h2>
+        <ul id="whitelist" class="text-green-700 list-disc pl-5 space-y-1"></ul>
+      </div>
+      <div class="bg-red-100 p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold text-red-800 mb-4">Blacklisted IPs</h2>
+        <ul id="blacklist" class="text-red-700 list-disc pl-5 space-y-1"></ul>
+      </div>
+    </div>
+
+    <!-- IP config control panel -->
+    <section class="bg-white p-6 rounded-lg shadow">
+      <h2 class="text-2xl font-semibold mb-4">Modify IP Configuration</h2>
+      <form id="ip-config-form" class="space-y-4">
+        <input id="ip-input" type="text" placeholder="Enter IP Address" class="w-full p-2 border rounded" />
+        <div class="flex flex-wrap gap-4">
+          <button type="button" onclick="modifyIP('whitelist')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Whitelist</button>
+          <button type="button" onclick="modifyIP('blacklist')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Blacklist</button>
+          <button type="button" onclick="modifyIP('remove')" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Remove</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- JavaScript for live integration -->
+  <script>
+    const renderList = (id, list) => {
+      const container = document.getElementById(id);
+      container.innerHTML = '';
+      list.forEach(ip => {
+        const li = document.createElement('li');
+        li.textContent = ip;
+        container.appendChild(li);
+      });
+    };
+
+    const fetchIPData = async () => {
+      try {
+        const response = await fetch('http://localhost:8081/api/ips');
+        const data = await response.json();
+        renderList('connected-ips', data.connected || []);
+        renderList('whitelist', data.whitelist || []);
+        renderList('blacklist', data.blacklist || []);
+      } catch (error) {
+        console.error('Error fetching IP data:', error);
+      }
+    };
+
+    const modifyIP = async (action) => {
+      const ip = document.getElementById('ip-input').value.trim();
+      if (!ip) return;
+
+      try {
+        await fetch('http://localhost:8081/api/ip', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ip, action })
+        });
+        await fetchIPData();  // Refresh display
+      } catch (error) {
+        console.error('Error modifying IP:', error);
+      }
+    };
+
+    // Load on startup
+    window.onload = fetchIPData;
+  </script>
+</body>
 </html>

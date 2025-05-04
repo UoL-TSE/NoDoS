@@ -1,0 +1,17 @@
+<style>
+  /* Optional customizations */
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .ip-entry {
+    padding: 0.5rem 1rem;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+  }
+
+  .ip-entry:hover {
+    background-color: #eef2f7;
+  }
+</style>
