@@ -1,6 +1,6 @@
 from pathlib import Path
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
 
 from proxy_manager import ProxyNotFound, proxy_manager
@@ -50,7 +50,7 @@ def login(auth_details: AuthDetails):
 
 # Spawn instance of proxy
 @app.post("/proxy/new/{config_id}", tags=["Proxies"])
-async def new_proxy(config_id: int) -> ProxyID:
+async def new_proxy(config_id: int, username: str = Depends(auth_handler.auth_wrapper)) -> ProxyID:
     db = DB()
 
     try:
@@ -64,7 +64,7 @@ async def new_proxy(config_id: int) -> ProxyID:
 
 # Delete an instance of a proxy
 @app.delete("/proxy/{proxy_id}", tags=["Proxies"])
-async def terminate_proxy(proxy_id: int):
+async def terminate_proxy(proxy_id: int, username: str = Depends(auth_handler.auth_wrapper)):
     try:
         proxy_manager.terminate(proxy_id)
     except ProxyNotFound as e:
@@ -73,7 +73,7 @@ async def terminate_proxy(proxy_id: int):
 
 # Get all proxies that are running
 @app.get("/proxy/all", tags=["Proxies"])
-async def all_proxies() -> Proxies:
+async def all_proxies(username: str = Depends(auth_handler.auth_wrapper)) -> Proxies:
     # Get all proxies that are running
     proxies = proxy_manager.allproxies()
 
@@ -93,7 +93,7 @@ async def all_proxies() -> Proxies:
 
 # Create a new config
 @app.post("/config/new", tags=["Configs"])
-async def new_config(config: Config) -> ConfigID:
+async def new_config(config: Config, username: str = Depends(auth_handler.auth_wrapper)) -> ConfigID:
     db = DB()
     config_id = db.new_config(config)
     return ConfigID(config_id=config_id)
@@ -101,7 +101,7 @@ async def new_config(config: Config) -> ConfigID:
 
 # Get all configs
 @app.get("/config/all", tags=["Configs"])
-async def get_configs() -> Configs:
+async def get_configs(username: str = Depends(auth_handler.auth_wrapper)) -> Configs:
     db = DB()
     
     configs = db.get_configs()
@@ -113,7 +113,7 @@ async def get_configs() -> Configs:
 
 # Get full config
 @app.get("/config/{config_id}", tags=["Configs"])
-async def get_config(config_id: int) -> Config:
+async def get_config(config_id: int, username: str = Depends(auth_handler.auth_wrapper)) -> Config:
     db = DB()
 
     try:
@@ -125,7 +125,7 @@ async def get_config(config_id: int) -> Config:
 
 # Delete a config
 @app.delete("/config/{config_id}", tags=["Configs"])
-async def delete_config(config_id: int):
+async def delete_config(config_id: int, username: str = Depends(auth_handler.auth_wrapper)):
     db = DB()
     
     try:
@@ -134,7 +134,7 @@ async def delete_config(config_id: int):
         raise HTTPException(status_code=404, detail=str(e))
     
 @app.put("/config/{config_id}", tags=["Configs"])
-async def update_config(config_id: int, config: Config):
+async def update_config(config_id: int, config: Config, username: str = Depends(auth_handler.auth_wrapper)):
     db = DB()
 
     try:
