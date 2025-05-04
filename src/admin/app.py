@@ -67,7 +67,7 @@ async def get_config(config_id: int) -> Config:
         config = db.get_config(config_id)
         return config
     except ConfigNotFoundException as e:
-        raise HTTPException(status_code=404, detail=f"No config with id {config_id} found")
+        raise HTTPException(status_code=404, detail=str(e))
     
 
 
