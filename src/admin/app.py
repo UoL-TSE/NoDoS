@@ -80,6 +80,15 @@ async def delete_config(config_id: int):
         db.delete_config(config_id)
     except ConfigNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
+    
+@app.put("/config/{config_id}", tags=["Configs"])
+async def update_config(config_id: int, config: Config):
+    db = DB()
+
+    try:
+            db.update_config(config_id, config)
+    except ConfigNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 # Clean up proxies on shutdown

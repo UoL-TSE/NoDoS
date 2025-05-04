@@ -105,3 +105,33 @@ class DB:
         cursor = self.conn.cursor()
 
         cursor.execute("DELETE FROM configs WHERE id = %s;", (config_id,))
+
+
+    def update_config(self, config_id: int, config: Config):
+        self.config_assertion(config_id)
+        cursor = self.conn.cursor()
+
+        cursor.execute("""
+            UPDATE configs SET
+                name = %s,
+                proxy_host = %s,
+                proxy_port = %s,
+                real_host = %s,
+                real_port = %s,
+                max_bytes_per_request = %s,
+                max_bytes_per_response = %s,
+                max_requests_per_second = %s
+            WHERE id = %s;
+        """, (
+            config.name,
+            config.proxy_host,
+            config.proxy_port,
+            config.real_host,
+            config.real_port,
+            config.max_bytes_per_request,
+            config.max_bytes_per_response,
+            config.max_requests_per_second,
+            config_id
+        ))
+
+        self.conn.commit()
