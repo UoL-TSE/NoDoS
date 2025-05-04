@@ -60,7 +60,6 @@ async def all_proxies() -> Proxies:
     )
     
 
-
 # Create a new config
 @app.post("/config/new", tags=["Configs"])
 async def new_config(config: Config) -> ConfigID:

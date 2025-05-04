@@ -12,3 +12,9 @@ CREATE TABLE IF NOT EXISTS configs (
     max_bytes_per_response INT UNSIGNED,
     max_requests_per_second FLOAT
 );
+
+Create TABLE IF NOT EXISTS requests (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(64) NOT NULL,
+    password VARCHAR(64) NOT NULL,
+);
