@@ -21,4 +21,12 @@ class MetaConfig(BaseModel):
 
 
 class Configs(BaseModel):
-    configs: list[MetaConfig]             = Field(..., description="List of config names with their respective ids")
+    configs: list[MetaConfig]               = Field(..., description="List of config names with their respective ids")
+
+
+class ProxyID(BaseModel):
+    proxy_id: int                           = Field(..., description="Unique identifier for the proxy")
+
+
+class ConfigID(BaseModel):
+    config_id: int                           = Field(..., description="Unique identifier for the config")

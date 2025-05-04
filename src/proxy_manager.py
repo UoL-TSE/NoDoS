@@ -47,7 +47,7 @@ class _ProxyManager:
 
         return None
 
-    async def new(self, config: Config):
+    async def new(self, config: Config) -> int:
         # Create new process and add it to the list
         with self.proxies_lock:
             proxy_id = self.get_new_id()

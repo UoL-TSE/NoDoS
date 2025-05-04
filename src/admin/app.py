@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 
 from proxy_manager import ProxyNotFound, proxy_manager
 from db import DB
-from models import Config, Configs
+from models import Config, ConfigID, Configs, ProxyID
 from db_exceptions import ConfigNotFoundException
 
 # Initialize app
@@ -19,7 +19,7 @@ app.mount("/pages", StaticFiles(directory=pages_dir), "pages")
 
 # Spawn instance of proxy
 @app.post("/proxy/new/{config_id}", tags=["Proxies"])
-async def new_proxy(config_id: int) -> int:
+async def new_proxy(config_id: int) -> ProxyID:
     db = DB()
 
     try:
@@ -27,7 +27,8 @@ async def new_proxy(config_id: int) -> int:
     except ConfigNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-    return await proxy_manager.new(config)
+    proxy_id = await proxy_manager.new(config)
+    return ProxyID(proxy_id=proxy_id)
 
 
 # Delete an instance of a proxy
@@ -41,9 +42,10 @@ async def terminate_proxy(proxy_id: int):
 
 # Create a new config
 @app.post("/config/new", tags=["Configs"])
-async def new_config(config: Config) -> int:
+async def new_config(config: Config) -> ConfigID:
     db = DB()
-    return db.new_config(config)
+    config_id = db.new_config(config)
+    return ConfigID(config_id=config_id)
 
 
 # Get all configs
