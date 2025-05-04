@@ -1,6 +1,11 @@
 from pydantic import BaseModel, Field
 
 
+class AuthDetails(BaseModel):
+    username: str            = Field(..., max_length=64, description="Username for the admin panel")
+    password: str              = Field(..., min_length=8, max_length=64, description="Password for the admin panel")
+
+
 class Config(BaseModel):
     name: str                   = Field(..., max_length=64,  description="Name to save the config under")
     proxy_host: str             = Field(...,                 description="Host that the proxy will run on")
