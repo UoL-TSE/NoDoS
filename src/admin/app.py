@@ -25,7 +25,7 @@ async def new_proxy(config_id: int) -> int:
     try:
         config = db.get_config(config_id)
     except ConfigNotFoundException as e:
-        raise HTTPException(status_code=404, detail=f"No config with id {config_id} found")
+        raise HTTPException(status_code=404, detail=str(e))
 
     return await proxy_manager.new(config)
 
