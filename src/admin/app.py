@@ -70,7 +70,6 @@ async def get_config(config_id: int) -> Config:
         raise HTTPException(status_code=404, detail=str(e))
     
 
-
 # Delete a config
 @app.delete("/config/{config_id}", tags=["Configs"])
 async def delete_config(config_id: int):
