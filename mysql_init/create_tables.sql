@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS configs (
     max_requests_per_second FLOAT
 );
 
-Create TABLE IF NOT EXISTS requests (
+CREATE TABLE IF NOT EXISTS users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
-    password VARCHAR(64) NOT NULL,
+    password VARCHAR(64) NOT NULL
 );
