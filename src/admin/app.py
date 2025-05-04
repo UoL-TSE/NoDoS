@@ -85,7 +85,7 @@ async def update_config(config_id: int, config: Config):
     db = DB()
 
     try:
-            db.update_config(config_id, config)
+        db.update_config(config_id, config)
     except ConfigNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
 
