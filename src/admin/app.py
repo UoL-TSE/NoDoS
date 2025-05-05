@@ -74,7 +74,6 @@ async def terminate_proxy(proxy_id: int, username: str = Depends(auth_handler.au
 # Get all proxies that are running
 @app.get("/proxy/all", tags=["Proxies"])
 async def all_proxies(username: str = Depends(auth_handler.auth_wrapper)) -> Proxies:
-    # Get all proxies that are running
     proxies = proxy_manager.allproxies()
 
     if not proxies:
@@ -82,14 +81,14 @@ async def all_proxies(username: str = Depends(auth_handler.auth_wrapper)) -> Pro
 
     return Proxies(
         proxies=[
-            {
-                "Proxy ID": i,
-                "Status": proxy.is_alive(),
-                "Exit Code": proxy.exitcode
-            } for i, proxy in enumerate(proxies)
+            Proxy(
+                proxy_id=i,
+                status=proxy.is_alive(),
+                exit_code=proxy.exitcode
+            ) for i, proxy in enumerate(proxies)
         ]
     )
-    
+
 
 # Create a new config
 @app.post("/config/new", tags=["Configs"])
