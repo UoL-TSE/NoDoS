@@ -25,9 +25,17 @@ users = []
 
 @app.post('/register', status_code=201, tags=["Auth"])
 def register(auth_details: AuthDetails):
+    if not auth_details.username.endswith('@students.lincoln.ac.uk') or auth_details.username.endswith('@lincoln.ac.uk'):
+        raise HTTPException(status_code=400, detail='Username must end with @students.lincoln.ac.uk or @lincoln.ac.uk')
+    db = DB()
+    cursor = db.conn.cursor()
+    cursor.execute("SELECT name FROM users WHERE name = %s", (auth_details.username,))
+    result = cursor.fetchone()
     if any(x['username'] == auth_details.username for x in users):
         raise HTTPException(status_code=400, detail='Username is taken')
     hashed_password = auth_handler.get_password_hash(auth_details.password)
+    cursor.execute("INSERT INTO users (name, password) VALUES (%s, %s)", (auth_details.username, hashed_password))
+    db.conn.commit()
     users.append({
         'username': auth_details.username,
         'password': hashed_password    
@@ -46,6 +54,22 @@ def login(auth_details: AuthDetails):
         raise HTTPException(status_code=401, detail='Invalid username and/or password')
     token = auth_handler.encode_token(user['username'])
     return { 'token': token }
+
+
+# Delete a user from the database
+@app.delete('/user/{username}', tags=["Auth"])
+def delete_user(username:str, current_user: str = Depends(auth_handler.auth_wrapper)):
+    if username != current_user:
+        raise HTTPException(status_code=403, detail='You can only delete your own account!')
+    db = DB()
+    cursor = db.conn.cursor()
+    cursor.execute("DELETE FROM users WHERE name = %s", (username,))
+    db.conn.commit()
+    for x in users:
+        if x['username'] == username:
+            users.remove(x)
+            break
+    return {"Deleted!": username}
 
 
 # Spawn instance of proxy
