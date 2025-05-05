@@ -898,3 +898,93 @@
 2025-05-04 17:47:44,145 - INFO - Request from 127.0.0.1
 2025-05-04 17:47:44,815 - INFO - Request from 127.0.0.1
 2025-05-04 17:47:44,831 - INFO - Request from 127.0.0.1
+2025-05-05 20:05:28,570 - INFO - Request from 127.0.0.1
+2025-05-05 20:05:28,571 - INFO - Request from 127.0.0.1
+2025-05-05 20:05:28,831 - INFO - Request from 127.0.0.1
+2025-05-05 20:05:30,601 - ERROR - Error handling request from 127.0.0.1: [WinError 10061] No connection could be made because the target machine actively refused it
+2025-05-05 20:05:30,601 - ERROR - Error handling request from 127.0.0.1: [WinError 10061] No connection could be made because the target machine actively refused it
+2025-05-05 20:05:30,863 - ERROR - Error handling request from 127.0.0.1: [WinError 10061] No connection could be made because the target machine actively refused it
+2025-05-05 20:05:31,931 - INFO - Request from 127.0.0.1
+2025-05-05 20:05:31,932 - INFO - Request from 127.0.0.1
+2025-05-05 20:05:32,193 - INFO - Request from 127.0.0.1
+2025-05-05 20:05:33,967 - ERROR - Error handling request from 127.0.0.1: [WinError 10061] No connection could be made because the target machine actively refused it
+2025-05-05 20:05:33,968 - ERROR - Error handling request from 127.0.0.1: [WinError 10061] No connection could be made because the target machine actively refused it
+2025-05-05 20:05:34,229 - ERROR - Error handling request from 127.0.0.1: [WinError 10061] No connection could be made because the target machine actively refused it
+2025-05-05 20:33:55,869 - INFO - Request from 127.0.0.1
+2025-05-05 20:33:55,870 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:33:56,130 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:04,802 - INFO - Request from 127.0.0.1
+2025-05-05 20:34:04,803 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:05,063 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:05,172 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:05,543 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:05,544 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:05,805 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:06,871 - INFO - Request from 127.0.0.1
+2025-05-05 20:34:06,873 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:07,135 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:08,602 - INFO - Request from 127.0.0.1
+2025-05-05 20:34:08,604 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:08,849 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:09,574 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:09,576 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:09,837 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:10,038 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:10,178 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:11,365 - INFO - Request from 127.0.0.1
+2025-05-05 20:34:11,366 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:11,736 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:11,829 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:11,983 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:13,078 - INFO - Request from 127.0.0.1
+2025-05-05 20:34:13,079 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:13,326 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:27,458 - INFO - Request from 127.0.0.1
+2025-05-05 20:34:27,459 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:27,721 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:27,844 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:29,052 - INFO - Request from 127.0.0.1
+2025-05-05 20:34:29,053 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:29,315 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:30,562 - INFO - Request from 127.0.0.1
+2025-05-05 20:34:30,564 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:30,825 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:32,137 - INFO - Request from 127.0.0.1
+2025-05-05 20:34:32,138 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:32,385 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:32,524 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:33,728 - INFO - Request from 127.0.0.1
+2025-05-05 20:34:33,729 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:34:33,975 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:35:40,561 - INFO - Request from 127.0.0.1
+2025-05-05 20:35:40,562 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:35:40,824 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:35:41,920 - INFO - Request from 127.0.0.1
+2025-05-05 20:35:41,921 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:35:42,183 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:35:42,276 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:35:42,599 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:35:42,600 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:35:42,847 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:35:43,925 - INFO - Request from 127.0.0.1
+2025-05-05 20:35:43,926 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 20:35:44,188 - WARNING - Too many requests from 127.0.0.1. IP has been blocked.
+2025-05-05 23:20:40,010 - INFO - Request from 127.0.0.1
+2025-05-05 23:20:40,271 - WARNING - Too many requests from 127.0.0.1. Temporarily blocked.
+2025-05-05 23:20:40,574 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:20:43,074 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:20:59,215 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:20:59,217 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:20:59,478 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:21:00,560 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:21:00,561 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:21:00,822 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:21:01,779 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:21:01,780 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:21:02,042 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:21:03,478 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:21:03,479 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:21:03,724 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:21:04,697 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:21:04,698 - WARNING - Blocked request from 127.0.0.1
+2025-05-05 23:21:04,958 - WARNING - Blocked request from 127.0.0.1

@@ -4,9 +4,11 @@ import time
 import logging
 from socketserver import BaseRequestHandler
 
+from db import DB
 from models import Config
 
 config: Config | None = None
+db = DB()
 
 # Setup logging
 logging.basicConfig(filename='dos_protection.log', level=logging.INFO,
@@ -14,7 +16,6 @@ logging.basicConfig(filename='dos_protection.log', level=logging.INFO,
 
 # In-memory storage for IP request tracking and blocks
 request_counts = {}
-blocked_ips = {}
 lock = threading.Lock()
 BLOCK_DURATION = 60  # seconds
 
@@ -26,12 +27,9 @@ class RequestHandler(BaseRequestHandler):
 
         # Check if IP is blocked
         with lock:
-            if client_ip in blocked_ips:
-                if time.time() < blocked_ips[client_ip]:
-                    logging.warning(f"Blocked request from {client_ip}")
-                    return
-                else:
-                    del blocked_ips[client_ip]
+            if db.is_in_blacklist(client_ip):
+                logging.warning(f"Blocked request from {client_ip}")
+                return
 
         # Rate limiting
         now = time.time()
@@ -43,7 +41,7 @@ class RequestHandler(BaseRequestHandler):
 
             if config.max_requests_per_second and len(history) > config.max_requests_per_second:
                 logging.warning(f"Too many requests from {client_ip}. Temporarily blocked.")
-                blocked_ips[client_ip] = now + BLOCK_DURATION
+                db.add_to_blacklist(client_ip)
                 return
 
         logging.info(f"Request from {client_ip}")
