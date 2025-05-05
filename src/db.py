@@ -135,3 +135,22 @@ class DB:
         ))
 
         self.conn.commit()
+
+    def add_to_blacklist(self, ip: str):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            INSERT INTO access_control (
+                ip_address,
+                list_type,
+                config_id
+            ) VALUES (%s, 'blacklist', %s);
+        """, (
+            ip, 1
+        ))
+        self.conn.commit()
+
+    def is_in_blacklist(self, ip: str):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT 1 FROM access_control WHERE ip_address = %s LIMIT 1;", (ip,))
+        return cursor.fetchone() is not None
+    
