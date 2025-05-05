@@ -25,13 +25,13 @@ users = []
 
 @app.post('/register', status_code=201, tags=["Auth"])
 def register(auth_details: AuthDetails):
-    if not auth_details.username.endswith('@students.lincoln.ac.uk') or auth_details.username.endswith('@lincoln.ac.uk'):
+    if not (auth_details.username.endswith('@students.lincoln.ac.uk') or auth_details.username.endswith('@lincoln.ac.uk')):
         raise HTTPException(status_code=400, detail='Username must end with @students.lincoln.ac.uk or @lincoln.ac.uk')
     db = DB()
     cursor = db.conn.cursor()
     cursor.execute("SELECT name FROM users WHERE name = %s", (auth_details.username,))
     result = cursor.fetchone()
-    if any(x['username'] == auth_details.username for x in users):
+    if result:
         raise HTTPException(status_code=400, detail='Username is taken')
     hashed_password = auth_handler.get_password_hash(auth_details.password)
     cursor.execute("INSERT INTO users (name, password) VALUES (%s, %s)", (auth_details.username, hashed_password))
@@ -40,7 +40,7 @@ def register(auth_details: AuthDetails):
         'username': auth_details.username,
         'password': hashed_password    
     })
-    return {"Reigistered!": auth_details.username}
+    return {"Registered!": auth_details.username}
 
 
 @app.post('/login', tags=["Auth"])
