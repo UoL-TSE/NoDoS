@@ -35,7 +35,7 @@
         div.innerHTML = `
           <h2 class="text-xl font-semibold text-gray-800">${proxy.name}</h2>
           <p class="text-gray-500 text-sm mb-3">${proxy.proxy_host}:${proxy.proxy_port}</p>
-          <a href="http://${proxy.proxy_host}:${monitorPort}/pages/monitor.html?proxy_id=${proxy.id}"
+          <a href="./monitor.html?proxy_id=${proxy.id}"
              class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" target="_blank">
             View Monitor
           </a>
