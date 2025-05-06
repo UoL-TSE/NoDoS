@@ -93,7 +93,8 @@ async def all_proxies(user_id: int = Depends(auth_handler.auth_wrapper)) -> Prox
                 proxy_id=i,
                 running=proxy.process.is_alive(),
                 exit_code=proxy.exit_code,
-                error_message=proxy.error_message
+                error_message=proxy.error_message,
+                config=proxy.config
             )
             for i, proxy in enumerate(proxies) if proxy
         ]

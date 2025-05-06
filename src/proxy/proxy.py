@@ -39,6 +39,7 @@ def _run_proxy(config_id: int, config: Config, conn: Connection):
 class Proxy:
     user_id: int
     config_id: int
+    config: Config
 
     process: Process
     proc_conn: Connection
@@ -49,6 +50,7 @@ class Proxy:
         self.proc_conn, child_conn = Pipe()
         self.user_id = user_id
         self.config_id = config_id
+        self.config = config
         
         self.process = Process(target=_run_proxy, args=(config_id, config, child_conn))
         self.process.start()

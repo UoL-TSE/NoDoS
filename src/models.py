@@ -42,10 +42,11 @@ class ProxyID(BaseModel):
 
 
 class Proxy(BaseModel):
-    proxy_id: int                           = Field(..., description="Unique identifier for the proxy")
-    running: bool                            = Field(..., description="Status of the proxy")
+    proxy_id: int                           = Field(...,  description="Unique identifier for the proxy")
+    running: bool                           = Field(...,  description="Status of the proxy")
     exit_code: int | None                   = Field(None, description="Exit code of the proxy if it has exited") 
     error_message: str | None               = Field(None, description="Error message of the proxy if it has exited") 
+    config: Config                          = Field(...,  description="Configuration for this proxy")
 
 
 class Proxies(BaseModel):

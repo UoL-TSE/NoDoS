@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NoDoS Dashboard</title>
+  <title>NoDoS IP Monitor</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-6">
   <div class="max-w-6xl mx-auto">
     <header class="text-center mb-10">
       <h1 class="text-4xl font-bold text-gray-800">🛡️ NoDoS IP Monitor</h1>
-      <p class="text-gray-600 mt-2">Live IP Monitoring Dashboard</p>
+      <p class="text-gray-600 mt-2" id="proxy-label">Loading...</p>
     </header>
 
     <!-- Connected IPs -->
@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <!-- IP config control panel -->
+    <!-- IP Config Control Panel -->
     <section class="bg-white p-6 rounded-lg shadow">
       <h2 class="text-2xl font-semibold mb-4">Modify IP Configuration</h2>
       <form id="ip-config-form" class="space-y-4">
@@ -47,8 +47,14 @@
     </section>
   </div>
 
-  <!-- JavaScript for live integration -->
+  <!-- JavaScript -->
   <script>
+    const params = new URLSearchParams(window.location.search);
+    const proxyId = params.get('proxy_id');
+    document.getElementById("proxy-label").innerText = proxyId
+      ? `Monitoring Proxy Config ID: ${proxyId}`
+      : "Monitoring Local Proxy";
+
     const renderList = (id, list) => {
       const container = document.getElementById(id);
       container.innerHTML = '';
@@ -61,7 +67,7 @@
 
     const fetchIPData = async () => {
       try {
-        const response = await fetch('http://localhost:8081/api/ips');
+        const response = await fetch('/api/ips');
         const data = await response.json();
         renderList('connected-ips', data.connected || []);
         renderList('whitelist', data.whitelist || []);
@@ -76,18 +82,17 @@
       if (!ip) return;
 
       try {
-        await fetch('http://localhost:8081/api/ip', {
+        await fetch('/api/ip', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ip, action })
         });
-        await fetchIPData();  // Refresh display
+        await fetchIPData();
       } catch (error) {
         console.error('Error modifying IP:', error);
       }
     };
 
-    // Load on startup
     window.onload = fetchIPData;
   </script>
 </body>
