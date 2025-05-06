@@ -6,7 +6,7 @@ from socketserver import BaseRequestHandler
 
 from db import DB
 from models import Config
-from src.db_exceptions import BlacklistingWhitelistedException
+from db_exceptions import BlacklistingWhitelistedException
 
 config_id: int | None = None
 config: Config | None = None
@@ -45,6 +45,7 @@ class RequestHandler(BaseRequestHandler):
                     db.add_to_blacklist(config_id, client_ip)
                 except BlacklistingWhitelistedException as e:
                     logging.error(str(e))
+
                 return
 
         logging.info(f"Request from {client_ip}")
