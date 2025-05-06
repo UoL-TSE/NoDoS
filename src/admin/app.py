@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
 
 from proxy_manager import ProxyNotFound, proxy_manager
-from db import DB
+from db import DB, ListType
 from models import *
 from db_exceptions import ConfigNotFoundException, UsernameTakenException
 from .auth import auth_handler
@@ -151,6 +151,41 @@ async def update_config(config_id: int, config: Config, user_id: int = Depends(a
     except ConfigNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+@app.get("/config/{config_id}/whitelist", tags=["Access Control"])
+async def get_whitelist(config_id: int, user_id: int = Depends(auth_handler.auth_wrapper)) -> IPAddresses:
+    db = DB()
+
+    return db.get_list(ListType.WHITELIST, config_id)
+    
+@app.get("/config/{config_id}/blacklist", tags=["Access Control"])
+async def get_blacklist(config_id: int, user_id: int = Depends(auth_handler.auth_wrapper)) -> IPAddresses:
+    db = DB()
+
+    return db.get_list(ListType.BLACKLIST, config_id)
+
+@app.put("/config/{config_id}/whitelist", tags=["Access Control"])
+async def add_to_whitelist(config_id: int, ip_address: IPAddress, user_id: int = Depends(auth_handler.auth_wrapper)):
+    db = DB()
+
+    return db.add_to_list(ListType.WHITELIST, config_id, ip_address.ip)
+    
+@app.put("/config/{config_id}/blacklist", tags=["Access Control"])
+async def add_to_blacklist(config_id: int, ip_address: IPAddress, user_id: int = Depends(auth_handler.auth_wrapper)):
+    db = DB()
+
+    return db.add_to_list(ListType.BLACKLIST, config_id, ip_address.ip)
+
+@app.delete("/config/{config_id}/whitelist", tags=["Access Control"])
+async def delete_from_whitelist(config_id: int, ip_address: IPAddress, user_id: int = Depends(auth_handler.auth_wrapper)):
+    db = DB()
+
+    return db.remove_from_list(ListType.WHITELIST, config_id, ip_address.ip)
+    
+@app.delete("/config/{config_id}/blacklist", tags=["Access Control"])
+async def delete_from_blacklist(config_id: int, ip_address: IPAddress, user_id: int = Depends(auth_handler.auth_wrapper)):
+    db = DB()
+
+    return db.remove_from_list(ListType.BLACKLIST, config_id, ip_address.ip)
 
 # Clean up proxies on shutdown
 @asynccontextmanager

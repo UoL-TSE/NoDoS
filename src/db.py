@@ -1,9 +1,15 @@
+from enum import Enum
 import MySQLdb
 
 from admin.auth import auth_handler
 from db_exceptions import *
-from models import AuthDetails, Config, Configs, MetaConfig
+from models import AuthDetails, Config, Configs, IPAddresses, MetaConfig
 from conn_pool import conn_pool
+
+class ListType(Enum):
+    WHITELIST = "whitelist"
+    BLACKLIST = "blacklist"
+
 
 class DB:
     conn: MySQLdb.Connection
@@ -169,79 +175,52 @@ class DB:
 
         self.conn.commit()
 
-    def is_in_whitelist(self, config_id: int, ip: str):
+    def get_list(self, list_type: ListType, config_id: int) -> IPAddresses:
         cursor = self.conn.cursor()
-        cursor.execute("""
+        cursor.execute(f"SELECT ip_address FROM access_control WHERE list_type = '{list_type.value}' AND config_id = %s;",
+                       (config_id,))
+
+        results = cursor.fetchall()
+        return IPAddresses(ips=[row[0] for row in results])
+
+    def is_in_list(self, list_type: ListType, config_id: int, ip: str):
+        cursor = self.conn.cursor()
+        cursor.execute(f"""
             SELECT 1 FROM access_control 
-            WHERE list_type = 'whitelist' 
+            WHERE list_type = '{list_type.value}' 
                 AND config_id = %s 
                 AND ip_address = %s 
             LIMIT 1;
         """, (config_id, ip))
+
         return cursor.fetchone() is not None
 
-    def is_in_blacklist(self, config_id: int, ip: str):
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            SELECT 1 FROM access_control 
-            WHERE list_type = 'blacklist' 
-                AND config_id = %s 
-                AND ip_address = %s 
-            LIMIT 1;
-        """, (config_id, ip))
-        return cursor.fetchone() is not None
-
-    def add_to_blacklist(self, config_id: int, ip: str):
+    def add_to_list(self, list_type: ListType, config_id: int, ip: str):
         cursor = self.conn.cursor()
 
-        if self.is_in_whitelist(config_id, ip):
+        if list_type == ListType.WHITELIST:
+            self.remove_from_list(list_type.BLACKLIST, config_id, ip)
+        elif self.is_in_list(ListType.WHITELIST, config_id, ip):
             raise BlacklistingWhitelistedException(ip)
 
-        cursor.execute("""
+        cursor.execute(f"""
             INSERT INTO access_control (
                 ip_address,
                 list_type,
                 config_id
-            ) VALUES (%s, 'blacklist', %s);
+            ) VALUES (%s, '{list_type.value}', %s);
         """, (
             ip, config_id
         ))
         self.conn.commit()
 
-    def remove_from_blacklist(self, config_id: int, ip: str):
+    def remove_from_list(self, list_type: ListType, config_id: int, ip: str):
         cursor = self.conn.cursor()
-        cursor.execute("""
+        cursor.execute(f"""
             DELETE FROM access_control
             WHERE config_id = %s 
                 AND ip_address = %s 
-                AND list_type = 'blacklist';
-        """, (config_id, ip))
-
-        self.conn.commit()
-
-    def add_to_whitelist(self, config_id: int, ip: str):
-        cursor = self.conn.cursor()
-
-        self.remove_from_blacklist(config_id, ip)
-
-        cursor.execute("""
-            INSERT INTO access_control (
-                ip_address,
-                list_type,
-                config_id
-            ) VALUES (%s, 'whitelist', %s);
-        """, (
-            ip, config_id
-        ))
-        self.conn.commit()
-
-    def remove_from_whitelist(self, config_id: int, ip: str):
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            DELETE FROM access_control
-            WHERE config_id = %s 
-                AND ip_address = %s 
-                AND list_type = 'whitelist';
+                AND list_type = '{list_type.value}';
         """, (config_id, ip))
 
         self.conn.commit()

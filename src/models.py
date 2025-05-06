@@ -50,3 +50,11 @@ class Proxy(BaseModel):
 
 class Proxies(BaseModel):
     proxies: list[Proxy]                    = Field(..., description="List of proxies with their respective ids and status")
+
+
+class IPAddress(BaseModel):
+    ip: str                                 = Field(..., description="IP address")
+
+
+class IPAddresses(BaseModel):
+    ips: list[str]                          = Field(..., description="List of IP addresses")
