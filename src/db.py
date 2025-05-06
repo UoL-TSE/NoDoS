@@ -212,6 +212,7 @@ class DB:
         """, (
             ip, config_id
         ))
+
         self.conn.commit()
 
     def remove_from_list(self, list_type: ListType, config_id: int, ip: str):

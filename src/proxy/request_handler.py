@@ -10,8 +10,6 @@ from db_exceptions import BlacklistingWhitelistedException
 
 config_id: int | None = None
 config: Config | None = None
-db = DB()
-
 
 
 # In-memory storage for IP request tracking and blocks
@@ -23,15 +21,15 @@ class RequestHandler(BaseRequestHandler):
     def handle(self):
         assert config and config_id
 
+        db = DB()
         client_ip = self.client_address[0]
         whitelisted = db.is_in_list(ListType.WHITELIST, config_id, client_ip)
 
         # Check if IP is blocked
         if not whitelisted:
-            with lock:
-                if db.is_in_list(ListType.BLACKLIST, config_id, client_ip):
-                    logging.warning(f"Blocked request from {client_ip}")
-                    return
+            if db.is_in_list(ListType.BLACKLIST, config_id, client_ip):
+                logging.warning(f"Blocked request from {client_ip}")
+                return
 
             # Rate limiting
             now = time.time()
