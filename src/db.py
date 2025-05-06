@@ -144,6 +144,7 @@ class DB:
         cursor = self.conn.cursor()
 
         cursor.execute("DELETE FROM configs WHERE id = %s;", (config_id,))
+        self.conn.commit()
 
 
     def update_config(self, user_id: int, config_id: int, config: Config):
