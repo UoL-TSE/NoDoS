@@ -1,17 +1,31 @@
-<style>
-  /* Optional customizations */
-  body {
+/* Optional customizations */
+body {
     font-family: 'Inter', sans-serif;
-  }
+}
 
-  .ip-entry {
+.ip-entry {
     padding: 0.5rem 1rem;
     background-color: #f9fafb;
     border: 1px solid #e5e7eb;
     border-radius: 0.375rem;
-  }
+}
 
-  .ip-entry:hover {
+.ip-entry:hover {
     background-color: #eef2f7;
-  }
-</style>
+}
+
+.proxy-panel.running {
+    background: linear-gradient(
+        to right,
+        #0000 80%,
+        #16A34A 20%
+    );
+}
+
+.proxy-panel.stopped {
+    background: linear-gradient(
+        to right,
+        #0000 80%,
+        #DC2626 20%
+    );
+}

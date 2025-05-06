@@ -46,6 +46,7 @@ class Proxy(BaseModel):
     running: bool                           = Field(...,  description="Status of the proxy")
     exit_code: int | None                   = Field(None, description="Exit code of the proxy if it has exited") 
     error_message: str | None               = Field(None, description="Error message of the proxy if it has exited") 
+    config_id: int                          = Field(...,  description="Unique identifier for the configuration")
     config: Config                          = Field(...,  description="Configuration for this proxy")
 
 
@@ -59,3 +60,8 @@ class IPAddress(BaseModel):
 
 class IPAddresses(BaseModel):
     ips: list[str]                          = Field(..., description="List of IP addresses")
+
+
+class AllLists(BaseModel):
+    whitelist: IPAddresses                  = Field(..., description="Whitelisted IPs")
+    blacklist: IPAddresses                  = Field(..., description="Blacklisted IPs")

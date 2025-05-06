@@ -94,6 +94,7 @@ async def all_proxies(user_id: int = Depends(auth_handler.auth_wrapper)) -> Prox
                 running=proxy.process.is_alive(),
                 exit_code=proxy.exit_code,
                 error_message=proxy.error_message,
+                config_id=proxy.config_id,
                 config=proxy.config
             )
             for i, proxy in enumerate(proxies) if proxy
@@ -172,11 +173,14 @@ async def get_blacklist(config_id: int, user_id: int = Depends(auth_handler.auth
 
 
 # Shows all the IP addresses in the whitelist and blacklist
-@app.get("/config/{config_id}/alllists", tags=["Access Control"])
-async def get_all_lists(config_id: int, user_id: int = Depends(auth_handler.auth_wrapper)) -> IPAddresses:
+@app.get("/config/{config_id}/all-lists", tags=["Access Control"])
+async def get_all_lists(config_id: int, user_id: int = Depends(auth_handler.auth_wrapper)) -> AllLists:
     db = DB()
 
-    return db.get_list(config_id)
+    return AllLists(
+        whitelist=db.get_list(ListType.WHITELIST, config_id),
+        blacklist=db.get_list(ListType.BLACKLIST, config_id)
+    )
 
 
 # Add an IP address to the whitelist
