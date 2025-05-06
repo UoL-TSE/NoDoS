@@ -35,7 +35,7 @@ def register(auth_details: AuthDetails) -> None:
 def login(auth_details: AuthDetails) -> Token:
     db = DB()
     cursor = db.conn.cursor()
-    cursor.execute("SELECT user_id, password FROM users WHERE name = %s", (auth_details.username,))
+    cursor.execute("SELECT id, password FROM users WHERE name = %s", (auth_details.username,))
 
     result = cursor.fetchone()
     if not result:
@@ -168,6 +168,14 @@ async def get_blacklist(config_id: int, user_id: int = Depends(auth_handler.auth
     db = DB()
 
     return db.get_list(ListType.BLACKLIST, config_id)
+
+
+# Shows all the IP addresses in the whitelist and blacklist
+@app.get("/config/{config_id}/alllists", tags=["Access Control"])
+async def get_all_lists(config_id: int, user_id: int = Depends(auth_handler.auth_wrapper)) -> IPAddresses:
+    db = DB()
+
+    return db.get_list(config_id)
 
 
 # Add an IP address to the whitelist
