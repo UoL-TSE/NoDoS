@@ -4,14 +4,12 @@ import time
 import logging
 from socketserver import BaseRequestHandler
 
-from db import DB
+from db import DB, ListType
 from models import Config
 from db_exceptions import BlacklistingWhitelistedException
 
 config_id: int | None = None
 config: Config | None = None
-db = DB()
-
 
 
 # In-memory storage for IP request tracking and blocks
@@ -23,30 +21,32 @@ class RequestHandler(BaseRequestHandler):
     def handle(self):
         assert config and config_id
 
+        db = DB()
         client_ip = self.client_address[0]
+        whitelisted = db.is_in_list(ListType.WHITELIST, config_id, client_ip)
 
         # Check if IP is blocked
-        with lock:
-            if db.is_in_blacklist(config_id, client_ip):
+        if not whitelisted:
+            if db.is_in_list(ListType.BLACKLIST, config_id, client_ip):
                 logging.warning(f"Blocked request from {client_ip}")
                 return
 
-        # Rate limiting
-        now = time.time()
-        with lock:
-            history = request_counts.get(client_ip, [])
-            history = [t for t in history if now - t < 1]
-            history.append(now)
-            request_counts[client_ip] = history
+            # Rate limiting
+            now = time.time()
+            with lock:
+                history = request_counts.get(client_ip, [])
+                history = [t for t in history if now - t < 1]
+                history.append(now)
+                request_counts[client_ip] = history
 
-            if config.max_requests_per_second and len(history) > config.max_requests_per_second:
-                logging.warning(f"Too many requests from {client_ip}. Temporarily blocked.")
-                try:
-                    db.add_to_blacklist(config_id, client_ip)
-                except BlacklistingWhitelistedException as e:
-                    logging.error(str(e))
+                if config.max_requests_per_second and len(history) > config.max_requests_per_second:
+                    logging.warning(f"Too many requests from {client_ip}. Temporarily blocked.")
+                    try:
+                        db.add_to_list(ListType.BLACKLIST, config_id, client_ip)
+                    except BlacklistingWhitelistedException as e:
+                        logging.error(str(e))
 
-                return
+                    return
 
         logging.info(f"Request from {client_ip}")
 
