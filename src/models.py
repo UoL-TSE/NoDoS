@@ -6,6 +6,10 @@ class AuthDetails(BaseModel):
     password: str              = Field(..., min_length=8, max_length=64, description="Password for the admin panel")
 
 
+class Token(BaseModel):
+    token: str              = Field(..., description="JWT token for authentication")
+
+
 class Config(BaseModel):
     name: str                   = Field(..., max_length=64,  description="Name to save the config under")
     proxy_host: str             = Field(...,                 description="Host that the proxy will run on")
@@ -30,7 +34,7 @@ class Configs(BaseModel):
 
 
 class ConfigID(BaseModel):
-    config_id: int                           = Field(..., description="Unique identifier for the config")
+    config_id: int                          = Field(..., description="Unique identifier for the config")
 
 
 class ProxyID(BaseModel):
@@ -38,10 +42,11 @@ class ProxyID(BaseModel):
 
 
 class Proxy(BaseModel):
-    proxy_id: int                          = Field(..., description="Unique identifier for the proxy")
-    status: bool                           = Field(..., description="Status of the proxy")
-    exit_code: int | None                  = Field(None, description="Exit code of the proxy if it has exited") 
+    proxy_id: int                           = Field(..., description="Unique identifier for the proxy")
+    running: bool                            = Field(..., description="Status of the proxy")
+    exit_code: int | None                   = Field(None, description="Exit code of the proxy if it has exited") 
+    error_message: str | None               = Field(None, description="Error message of the proxy if it has exited") 
 
 
 class Proxies(BaseModel):
-    proxies: list[Proxy]                  = Field(..., description="List of proxies with their respective ids and status")
+    proxies: list[Proxy]                    = Field(..., description="List of proxies with their respective ids and status")

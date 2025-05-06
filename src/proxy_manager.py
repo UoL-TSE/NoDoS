@@ -1,9 +1,7 @@
-from multiprocessing import Process, Lock
+from multiprocessing import Lock
 
-import proxy.request_handler
-from proxy.request_handler import RequestHandler
-from proxy.tcp_server import TCPServer
 from models import Config
+from proxy.proxy import Proxy
 
 
 class ProxyNotFound(Exception):
@@ -11,75 +9,63 @@ class ProxyNotFound(Exception):
         super().__init__(f"Proxy with ID {proxy_id} was not found")
 
 
-def _run_proxy(config: Config):
-    proxy.request_handler.config = config
-
-    # Initialise TCPServer
-    server: TCPServer | None
-    try:
-        server = TCPServer((config.proxy_host, config.proxy_port), RequestHandler)
-        print(f"Running proxy on {config.proxy_host}:{config.proxy_port}",
-              f"Forwarding for {config.real_host}:{config.real_port}",
-              sep="\n")
-
-        server.serve_forever()
-    except OSError as e:
-        print(f"OS Error starting server: {str(e)}")
-        exit(e.errno)
-
-
 class _ProxyManager:
     proxies_lock = Lock()
-    proxies: list[Process] = []
+    proxies: list[Proxy | None] = []
 
     def cleanup(self):
         # Terminate proxy servers when this object is deleted
-        for process in self.proxies:
-            process.terminate()
-            process.join()
-            process.close()
+        for proxy in self.proxies:
+            if not proxy:
+                continue
+
+            proxy.terminate()
+
+    def poll(self):
+        for proxy in self.proxies:
+            if proxy:
+                proxy.poll()
 
     def get_new_id(self) -> int | None:
         # Either find the first empty spot in the list or return the max
-        for i in range(len(self.proxies)):
-            if self.proxies[i].exitcode is not None:
+        for i, proxy in enumerate(self.proxies):
+            if proxy is None:
                 return i
 
         return None
 
-    async def new(self, config: Config) -> int:
+    async def new(self, user_id: int, config_id: int, config: Config) -> int:
         # Create new process and add it to the list
         with self.proxies_lock:
             proxy_id = self.get_new_id()
-            process = Process(target=_run_proxy, args=(config,))
+            proxy = Proxy(user_id, config_id, config)
 
             if proxy_id is None:
-                self.proxies.append(process)
+                self.proxies.append(proxy)
                 proxy_id = len(self.proxies) - 1
             else:
-                self.proxies[proxy_id].join()
-                self.proxies[proxy_id].close()
-                self.proxies[proxy_id] = process
+                self.proxies[proxy_id] = proxy
         
-        process.start()
         return proxy_id
 
     def terminate(self, proxy_id: int):
-        # If the process_id doesn't point to a process, raise HTTP 404
-        if proxy_id > len(self.proxies)-1 or self.proxies[proxy_id].exitcode is not None:
+        # If the process_id doesn't point to a process, raise ProxyNotFound
+        if proxy_id > len(self.proxies)-1 or self.proxies[proxy_id] is None:
             raise ProxyNotFound(proxy_id)
         
-        # Get the proxy and assert its existence as it should exist
+        # Get the proxy and assert it's existence as it should exist
         proxy = self.proxies[proxy_id]
         assert proxy
 
-        # Terminate and join the process
         proxy.terminate()
-        proxy.join()
+        self.proxies[proxy_id] = None
 
-    def allproxies(self) -> list[Process]:
+    def allproxies(self) -> list[Proxy]:
+        # Poll all proxies
+        self.poll()
+
         # Return all proxies
-        return self.proxies
+        return [proxy for proxy in self.proxies if proxy]
 
 
 

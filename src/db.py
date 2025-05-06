@@ -1,7 +1,8 @@
 import MySQLdb
 
+from admin.auth import auth_handler
 from db_exceptions import *
-from models import Config, Configs, MetaConfig
+from models import AuthDetails, Config, Configs, MetaConfig
 from conn_pool import conn_pool
 
 class DB:
@@ -14,19 +15,50 @@ class DB:
         self.conn.rollback()
         conn_pool.push(self.conn)
 
-    def config_assertion(self, config_id: int):
+    def user_id_exists(self, user_id: int) -> bool:
         cursor = self.conn.cursor()
-        cursor.execute("SELECT 1 FROM configs WHERE id = %s LIMIT 1;", (config_id,))
+        cursor.execute("SELECT 1 FROM users WHERE id = %s LIMIT 1;", (user_id,))
+        
+        return cursor.fetchone() is not None
+
+    def username_exists(self, username: str) -> bool:
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT 1 FROM users WHERE name = %s LIMIT 1;", (username,))
+        
+        return cursor.fetchone() is not None
+
+    def register_user(self, auth_details: AuthDetails):
+        if self.username_exists(auth_details.username):
+            raise UsernameTakenException(auth_details.username)
+ 
+        hashed_password = auth_handler.get_password_hash(auth_details.password)
+
+        cursor = self.conn.cursor()
+        cursor.execute("INSERT INTO users (name, password) VALUES (%s, %s)", (auth_details.username, hashed_password))
+        self.conn.commit()
+
+    def delete_user(self, user_id: int):
+        # User ID is decoded from JWT, should exists in database
+        assert self.user_id_exists(user_id)
+
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        self.conn.commit()
+
+    def config_assertion(self, user_id: int, config_id: int):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT 1 FROM configs WHERE id = %s AND user_id = %s LIMIT 1;", (config_id, user_id))
 
         if not cursor.fetchone():
             raise ConfigNotFoundException(config_id)
 
-    def new_config(self, config: Config) -> int:
+    def new_config(self, user_id: int, config: Config) -> int:
         cursor = self.conn.cursor()
 
         cursor.execute("""
             INSERT INTO configs (
                 name,
+                user_id,
                 proxy_host,
                 proxy_port,
                 real_host,
@@ -34,9 +66,10 @@ class DB:
                 max_bytes_per_request,
                 max_bytes_per_response,
                 max_requests_per_second
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
         """, (
             config.name,
+            user_id,
             config.proxy_host,
             config.proxy_port,
             config.real_host,
@@ -49,10 +82,10 @@ class DB:
         self.conn.commit()
         return cursor.lastrowid
 
-    def get_configs(self) -> Configs | None:
+    def get_configs(self, user_id: int) -> Configs | None:
         cursor = self.conn.cursor()
 
-        cursor.execute("SELECT id, name FROM configs;")
+        cursor.execute("SELECT id, name FROM configs WHERE user_id = %s;", (user_id,))
         results = cursor.fetchall()
 
         if len(results) == 0:
@@ -68,8 +101,8 @@ class DB:
             ]
         )
 
-    def get_config(self, config_id: int) -> Config:
-        self.config_assertion(config_id)
+    def get_config(self, user_id: int, config_id: int) -> Config:
+        self.config_assertion(user_id, config_id)
         cursor = self.conn.cursor()
 
         cursor.execute("""
@@ -83,8 +116,8 @@ class DB:
             max_bytes_per_response,
             max_requests_per_second
         FROM configs
-        WHERE id = %s;
-        """, (config_id,))
+        WHERE id = %s AND user_id = %s;
+        """, (config_id, user_id))
 
         row = cursor.fetchone()
         assert isinstance(row, tuple)
@@ -100,15 +133,15 @@ class DB:
             max_requests_per_second=row[7]
         )
 
-    def delete_config(self, config_id: int):
-        self.config_assertion(config_id)
+    def delete_config(self, user_id: int, config_id: int):
+        self.config_assertion(user_id, config_id)
         cursor = self.conn.cursor()
 
         cursor.execute("DELETE FROM configs WHERE id = %s;", (config_id,))
 
 
-    def update_config(self, config_id: int, config: Config):
-        self.config_assertion(config_id)
+    def update_config(self, user_id: int, config_id: int, config: Config):
+        self.config_assertion(user_id, config_id)
         cursor = self.conn.cursor()
 
         cursor.execute("""
@@ -136,8 +169,34 @@ class DB:
 
         self.conn.commit()
 
-    def add_to_blacklist(self, ip: str):
+    def is_in_whitelist(self, config_id: int, ip: str):
         cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT 1 FROM access_control 
+            WHERE list_type = 'whitelist' 
+                AND config_id = %s 
+                AND ip_address = %s 
+            LIMIT 1;
+        """, (config_id, ip))
+        return cursor.fetchone() is not None
+
+    def is_in_blacklist(self, config_id: int, ip: str):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT 1 FROM access_control 
+            WHERE list_type = 'blacklist' 
+                AND config_id = %s 
+                AND ip_address = %s 
+            LIMIT 1;
+        """, (config_id, ip))
+        return cursor.fetchone() is not None
+
+    def add_to_blacklist(self, config_id: int, ip: str):
+        cursor = self.conn.cursor()
+
+        if self.is_in_whitelist(config_id, ip):
+            raise BlacklistingWhitelistedException(ip)
+
         cursor.execute("""
             INSERT INTO access_control (
                 ip_address,
@@ -145,12 +204,44 @@ class DB:
                 config_id
             ) VALUES (%s, 'blacklist', %s);
         """, (
-            ip, 1
+            ip, config_id
         ))
         self.conn.commit()
 
-    def is_in_blacklist(self, ip: str):
+    def remove_from_blacklist(self, config_id: int, ip: str):
         cursor = self.conn.cursor()
-        cursor.execute("SELECT 1 FROM access_control WHERE ip_address = %s LIMIT 1;", (ip,))
-        return cursor.fetchone() is not None
-    
+        cursor.execute("""
+            DELETE FROM access_control
+            WHERE config_id = %s 
+                AND ip_address = %s 
+                AND list_type = 'blacklist';
+        """, (config_id, ip))
+
+        self.conn.commit()
+
+    def add_to_whitelist(self, config_id: int, ip: str):
+        cursor = self.conn.cursor()
+
+        self.remove_from_blacklist(config_id, ip)
+
+        cursor.execute("""
+            INSERT INTO access_control (
+                ip_address,
+                list_type,
+                config_id
+            ) VALUES (%s, 'whitelist', %s);
+        """, (
+            ip, config_id
+        ))
+        self.conn.commit()
+
+    def remove_from_whitelist(self, config_id: int, ip: str):
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            DELETE FROM access_control
+            WHERE config_id = %s 
+                AND ip_address = %s 
+                AND list_type = 'whitelist';
+        """, (config_id, ip))
+
+        self.conn.commit()
