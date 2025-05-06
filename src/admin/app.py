@@ -35,7 +35,7 @@ def register(auth_details: AuthDetails) -> None:
 def login(auth_details: AuthDetails) -> Token:
     db = DB()
     cursor = db.conn.cursor()
-    cursor.execute("SELECT id, password FROM users WHERE name = %s", (auth_details.username,))
+    cursor.execute("SELECT user_id, password FROM users WHERE name = %s", (auth_details.username,))
 
     result = cursor.fetchone()
     if not result:
@@ -142,6 +142,8 @@ async def delete_config(config_id: int, user_id: int = Depends(auth_handler.auth
     except ConfigNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     
+
+# Update a config
 @app.put("/config/{config_id}", tags=["Configs"])
 async def update_config(config_id: int, config: Config, user_id: int = Depends(auth_handler.auth_wrapper)):
     db = DB()
@@ -151,41 +153,54 @@ async def update_config(config_id: int, config: Config, user_id: int = Depends(a
     except ConfigNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+
+# Shows all the IP addresses in the whitelist
 @app.get("/config/{config_id}/whitelist", tags=["Access Control"])
 async def get_whitelist(config_id: int, user_id: int = Depends(auth_handler.auth_wrapper)) -> IPAddresses:
     db = DB()
 
     return db.get_list(ListType.WHITELIST, config_id)
     
+
+# Shows all the IP addresses in the blacklist
 @app.get("/config/{config_id}/blacklist", tags=["Access Control"])
 async def get_blacklist(config_id: int, user_id: int = Depends(auth_handler.auth_wrapper)) -> IPAddresses:
     db = DB()
 
     return db.get_list(ListType.BLACKLIST, config_id)
 
+
+# Add an IP address to the whitelist
 @app.put("/config/{config_id}/whitelist", tags=["Access Control"])
 async def add_to_whitelist(config_id: int, ip_address: IPAddress, user_id: int = Depends(auth_handler.auth_wrapper)):
     db = DB()
 
     return db.add_to_list(ListType.WHITELIST, config_id, ip_address.ip)
     
+
+# Add an IP address to the blacklist
 @app.put("/config/{config_id}/blacklist", tags=["Access Control"])
 async def add_to_blacklist(config_id: int, ip_address: IPAddress, user_id: int = Depends(auth_handler.auth_wrapper)):
     db = DB()
 
     return db.add_to_list(ListType.BLACKLIST, config_id, ip_address.ip)
 
+
+# Delete an IP address from the whitelist
 @app.delete("/config/{config_id}/whitelist", tags=["Access Control"])
 async def delete_from_whitelist(config_id: int, ip_address: IPAddress, user_id: int = Depends(auth_handler.auth_wrapper)):
     db = DB()
 
     return db.remove_from_list(ListType.WHITELIST, config_id, ip_address.ip)
     
+
+# Delete an IP address from the blacklist
 @app.delete("/config/{config_id}/blacklist", tags=["Access Control"])
 async def delete_from_blacklist(config_id: int, ip_address: IPAddress, user_id: int = Depends(auth_handler.auth_wrapper)):
     db = DB()
 
     return db.remove_from_list(ListType.BLACKLIST, config_id, ip_address.ip)
+
 
 # Clean up proxies on shutdown
 @asynccontextmanager
