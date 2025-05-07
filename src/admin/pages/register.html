@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register - NoDoS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="/pages/register.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <h1 class="text-3xl font-bold text-center mb-6">🛡️ NoDoS Register</h1>
+
+    <form id="register-form" class="space-y-5" novalidate>
+      <div>
+        <label for="register-username" class="block text-sm font-medium text-gray-700">Username (Email)</label>
+        <input type="email" id="register-username" required placeholder="example@students.lincoln.ac.uk"
+          class="mt-1 w-full p-3 border rounded" />
+      </div>
+
+      <div>
+        <label for="register-password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="register-password" required class="mt-1 w-full p-3 border rounded" />
+      </div>
+
+      <p id="register-error" class="text-red-600 text-sm hidden"></p>
+
+      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+        Register
+      </button>
+    </form>
+
+    <p class="text-center mt-4 text-sm">
+      Already have an account? <a href="./login.html" class="text-blue-600 hover:underline">Log in</a>
+    </p>
+  </div>
+</body>
+</html>
