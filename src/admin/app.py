@@ -1,5 +1,7 @@
+from os import stat
 from pathlib import Path
 from contextlib import asynccontextmanager
+import MySQLdb
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
 
@@ -57,7 +59,7 @@ def delete_user(user_id: int = Depends(auth_handler.auth_wrapper)) -> None:
 
 
 # Spawn instance of proxy
-@app.post("/proxy/new/{config_id}", tags=["Proxies"])
+@app.post("/proxy/new/{config_id}", status_code=201, tags=["Proxies"])
 async def new_proxy(config_id: int, user_id: int = Depends(auth_handler.auth_wrapper)) -> ProxyID:
     db = DB()
 
@@ -103,11 +105,15 @@ async def all_proxies(user_id: int = Depends(auth_handler.auth_wrapper)) -> Prox
 
 
 # Create a new config
-@app.post("/config/new", tags=["Configs"])
+@app.post("/config/new", status_code=201, tags=["Configs"])
 async def new_config(config: Config, user_id: int = Depends(auth_handler.auth_wrapper)) -> ConfigID:
     db = DB()
-    config_id = db.new_config(user_id, config)
-    return ConfigID(config_id=config_id)
+    
+    try:
+        config_id = db.new_config(user_id, config)
+        return ConfigID(config_id=config_id)
+    except MySQLdb.IntegrityError:
+        raise HTTPException(status_code=409, detail="A config under this name already exists")
 
 
 # Get all configs
@@ -189,7 +195,7 @@ async def add_to_whitelist(config_id: int, ip_address: IPAddress, user_id: int =
     db = DB()
     #if statement to check if the IP address is in the whitelist
     if db.is_in_list(ListType.WHITELIST, config_id, ip_address.ip):
-        raise HTTPException(status_code=400, detail="IP address is already in the whitelist")
+        raise HTTPException(status_code=409, detail="IP address is already in the whitelist")
     return db.add_to_list(ListType.WHITELIST, config_id, ip_address.ip)
     
 
