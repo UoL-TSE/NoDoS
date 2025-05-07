@@ -11,3 +11,8 @@ class UsernameTakenException(Exception):
 class BlacklistingWhitelistedException(Exception):
     def __init__(self, ip: str):
         super().__init__(f"IP address {ip} is whitelisted so cannot be blacklisted")
+
+
+class IPNotFoundException(Exception):
+    def __init__(self, ip: str):
+        super().__init__(f"IP address {ip} was not found")

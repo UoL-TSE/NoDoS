@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from proxy_manager import ProxyNotFound, proxy_manager
 from db import DB, ListType
 from models import *
-from db_exceptions import ConfigNotFoundException, UsernameTakenException
+from db_exceptions import ConfigNotFoundException, IPNotFoundException, UsernameTakenException
 from .auth import auth_handler
 
 
@@ -209,7 +209,10 @@ async def add_to_blacklist(config_id: int, ip_address: IPAddress, user_id: int =
 async def delete_from_whitelist(config_id: int, ip_address: IPAddress, user_id: int = Depends(auth_handler.auth_wrapper)):
     db = DB()
 
-    return db.remove_from_list(ListType.WHITELIST, config_id, ip_address.ip)
+    try:
+        return db.remove_from_list(ListType.WHITELIST, config_id, ip_address.ip)
+    except IPNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
     
 
 # Delete an IP address from the blacklist
@@ -217,7 +220,10 @@ async def delete_from_whitelist(config_id: int, ip_address: IPAddress, user_id: 
 async def delete_from_blacklist(config_id: int, ip_address: IPAddress, user_id: int = Depends(auth_handler.auth_wrapper)):
     db = DB()
 
-    return db.remove_from_list(ListType.BLACKLIST, config_id, ip_address.ip)
+    try:
+        return db.remove_from_list(ListType.BLACKLIST, config_id, ip_address.ip)
+    except IPNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 # Clean up proxies on shutdown

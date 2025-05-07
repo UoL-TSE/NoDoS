@@ -225,6 +225,9 @@ class DB:
         cursor = self.conn.cursor()
 
         ip = ip.strip()
+
+        if not self.is_in_list(list_type, config_id, ip):
+            raise IPNotFoundException(ip)
         
         cursor.execute(f"""
             DELETE FROM access_control

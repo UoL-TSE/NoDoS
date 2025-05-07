@@ -20,6 +20,7 @@ const renderList = (list_id, list) => {
     container.innerHTML = '';
     list.forEach(ip => {
         const li = document.createElement('li');
+        li.style.cursor = "not-allowed";
         li.textContent = ip;
         li.onclick = () => {
             removeIP(ip, list_id);
