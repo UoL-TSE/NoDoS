@@ -10,6 +10,12 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
   errorMsg.classList.add("hidden");
   errorMsg.textContent = "";
 
+  if (password.length < 8) {
+    errorMsg.textContent = "Password must be at least 8 characters long.";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
   try {
     const res = await fetch("/auth/login", {
       method: "POST",
@@ -20,11 +26,20 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (!res.ok) {
-      errorMsg.textContent = data.detail || "Login failed";
-      errorMsg.classList.remove("hidden");
-      return;
-    }
-
+        // ✅ Server error handling
+        if (typeof data.detail === "string") {
+          errorMsg.textContent = data.detail;
+        } else if (Array.isArray(data.detail) && data.detail[0]?.msg) {
+          errorMsg.textContent = data.detail[0].msg;
+        } else if (data.detail?.msg) {
+          errorMsg.textContent = data.detail.msg;
+        } else {
+          errorMsg.textContent = "Login failed.";
+        }
+  
+        errorMsg.classList.remove("hidden");
+        return;
+      }
     // Store token in session
     setToken(data.token);
 
