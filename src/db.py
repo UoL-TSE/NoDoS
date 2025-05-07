@@ -199,28 +199,16 @@ class DB:
 
         return cursor.fetchone() is not None
     
-    def remove_from_list(self, list_type: ListType, config_id: int, ip: str):
-        cursor = self.conn.cursor()
-
-        ip = ip.strip()
-        
-        cursor.execute(f"""
-            DELETE FROM access_control
-            WHERE config_id = %s 
-                AND ip_address = %s 
-                AND list_type = '{list_type.value}';
-        """, (config_id, ip))
-
-        self.conn.commit()
-
-
     def add_to_list(self, list_type: ListType, config_id: int, ip: str):
         cursor = self.conn.cursor()
 
         ip = ip.strip()
 
         if list_type == ListType.WHITELIST:
-            self.remove_from_list(list_type.BLACKLIST, config_id, ip)
+            try:
+                self.remove_from_list(list_type.BLACKLIST, config_id, ip)
+            except IPNotFoundException:
+                pass
         elif self.is_in_list(ListType.WHITELIST, config_id, ip):
             raise BlacklistingWhitelistedException(ip)
 

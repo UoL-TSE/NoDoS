@@ -31,5 +31,6 @@ CREATE TABLE IF NOT EXISTS access_control (
     config_id INT UNSIGNED NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP,
-    FOREIGN KEY (config_id) REFERENCES configs(id) ON DELETE CASCADE
+    FOREIGN KEY (config_id) REFERENCES configs(id) ON DELETE CASCADE,
+    UNIQUE (ip_address, config_id)
 );
