@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from proxy_manager import ProxyNotFound, proxy_manager
 from db import DB, ListType
 from models import *
-from db_exceptions import ConfigNotFoundException, UsernameTakenException
+from db_exceptions import ConfigNotFoundException, UsernameTakenException, BlacklistingWhitelistedException
 from .auth import auth_handler
 
 
@@ -200,8 +200,12 @@ async def add_to_blacklist(config_id: int, ip_address: IPAddress, user_id: int =
 
     #if statement to check if the IP address is in the blacklist
     if db.is_in_list(ListType.BLACKLIST, config_id, ip_address.ip):
-        raise HTTPException(status_code=400, detail="IP address is already in the blacklist")
-    return db.add_to_list(ListType.BLACKLIST, config_id, ip_address.ip)
+        raise HTTPException(status_code=409, detail="IP address is already in the blacklist")
+    
+    try:
+        return db.add_to_list(ListType.BLACKLIST, config_id, ip_address.ip)
+    except BlacklistingWhitelistedException as e:
+        raise HTTPException(status_code=409, detail=str(e))
 
 
 # Delete an IP address from the whitelist
