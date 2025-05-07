@@ -198,28 +198,7 @@ class DB:
         """, (config_id, ip))
 
         return cursor.fetchone() is not None
-
-    def add_to_list(self, list_type: ListType, config_id: int, ip: str):
-        cursor = self.conn.cursor()
-
-        ip = ip.strip()
-
-        if list_type == ListType.WHITELIST:
-            self.remove_from_list(list_type.BLACKLIST, config_id, ip)
-        elif self.is_in_list(ListType.WHITELIST, config_id, ip):
-            raise BlacklistingWhitelistedException(ip)
-
-        cursor.execute(f"""
-            INSERT INTO access_control (
-                ip_address,
-                list_type,
-                config_id
-            ) VALUES (%s, '{list_type.value}', %s);
-        """, (
-            ip, config_id
-        ))
-
-        self.conn.commit()
+    
 
     def remove_from_list(self, list_type: ListType, config_id: int, ip: str):
         cursor = self.conn.cursor()
@@ -232,5 +211,28 @@ class DB:
                 AND ip_address = %s 
                 AND list_type = '{list_type.value}';
         """, (config_id, ip))
+
+        self.conn.commit()
+
+
+    def add_to_list(self, list_type: ListType, config_id: int, ip: str):
+        cursor = self.conn.cursor()
+
+        ip = ip.strip()
+
+        if list_type == ListType.WHITELIST:
+            self.remove_from_list(list_type.BLACKLIST, config_id, ip)
+        elif list_type == ListType.BLACKLIST:
+            self.remove_from_list(list_type.WHITELIST, config_id, ip)
+
+        cursor.execute(f"""
+            INSERT INTO access_control (
+                ip_address,
+                list_type,
+                config_id
+            ) VALUES (%s, '{list_type.value}', %s);
+        """, (
+            ip, config_id
+        ))
 
         self.conn.commit()

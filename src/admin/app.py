@@ -197,7 +197,6 @@ async def add_to_whitelist(config_id: int, ip_address: IPAddress, user_id: int =
 @app.put("/config/{config_id}/blacklist", tags=["Access Control"])
 async def add_to_blacklist(config_id: int, ip_address: IPAddress, user_id: int = Depends(auth_handler.auth_wrapper)):
     db = DB()
-
     #if statement to check if the IP address is in the blacklist
     if db.is_in_list(ListType.BLACKLIST, config_id, ip_address.ip):
         raise HTTPException(status_code=400, detail="IP address is already in the blacklist")
