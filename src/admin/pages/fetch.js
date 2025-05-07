@@ -1,4 +1,5 @@
 let _token = null;
+let redirecting = false;
 
 
 export function setToken(token) {
@@ -22,13 +23,26 @@ export function fetchAPI(method, endpoint, body=null) {
             "Content-Type": "application/json"
         }
     }
-
-    return fetch(endpoint, {
+    
+    const promise = fetch(endpoint, {
         method: method,
         headers: {
             "Authorization": `Bearer ${_token}`,
             ...headers
         },
         body: body
-    })
+    });
+
+    promise.then((r) => {
+        if (r.status === 401) {
+            if (!redirecting) {
+                redirecting = true;
+                alert("Your login has expired, please login again.");
+                window.location.href = "/pages/login.html";
+            }
+
+        }
+    });
+
+    return promise;
 }
