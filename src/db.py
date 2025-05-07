@@ -186,6 +186,9 @@ class DB:
 
     def is_in_list(self, list_type: ListType, config_id: int, ip: str):
         cursor = self.conn.cursor()
+
+        ip = ip.strip()
+
         cursor.execute(f"""
             SELECT 1 FROM access_control 
             WHERE list_type = '{list_type.value}' 
@@ -198,6 +201,8 @@ class DB:
 
     def add_to_list(self, list_type: ListType, config_id: int, ip: str):
         cursor = self.conn.cursor()
+
+        ip = ip.strip()
 
         if list_type == ListType.WHITELIST:
             self.remove_from_list(list_type.BLACKLIST, config_id, ip)
@@ -218,6 +223,9 @@ class DB:
 
     def remove_from_list(self, list_type: ListType, config_id: int, ip: str):
         cursor = self.conn.cursor()
+
+        ip = ip.strip()
+        
         cursor.execute(f"""
             DELETE FROM access_control
             WHERE config_id = %s 
