@@ -2,13 +2,18 @@ let _token = null;
 
 
 export function setToken(token) {
+    window.sessionStorage.setItem("token", token);
     _token = token;
 }
 
 
 export function fetchAPI(method, endpoint, body=null) {
     if (_token === null) {
-        throw "No token specified";
+        _token = window.sessionStorage.getItem("token");
+        
+        if (_token === null) {
+            throw "No token specified";
+        }
     }
 
     let headers = {};
