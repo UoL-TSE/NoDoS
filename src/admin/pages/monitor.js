@@ -4,7 +4,7 @@ const params = new URLSearchParams(window.location.search);
 const proxyId = params.get('proxy_id');
 const configId = params.get('config_id');
 document.getElementById("proxy-label").innerText = proxyId
-    ? `Monitoring Proxy Config ID: ${proxyId}`
+    ? `Monitoring Proxy Config ID: ${configId}`
     : "Monitoring Local Proxy";
 
 const removeIP = (ip, list) => {
