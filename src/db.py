@@ -198,6 +198,21 @@ class DB:
         """, (config_id, ip))
 
         return cursor.fetchone() is not None
+    
+    def remove_from_list(self, list_type: ListType, config_id: int, ip: str):
+        cursor = self.conn.cursor()
+
+        ip = ip.strip()
+        
+        cursor.execute(f"""
+            DELETE FROM access_control
+            WHERE config_id = %s 
+                AND ip_address = %s 
+                AND list_type = '{list_type.value}';
+        """, (config_id, ip))
+
+        self.conn.commit()
+
 
     def add_to_list(self, list_type: ListType, config_id: int, ip: str):
         cursor = self.conn.cursor()
@@ -218,19 +233,5 @@ class DB:
         """, (
             ip, config_id
         ))
-
-        self.conn.commit()
-
-    def remove_from_list(self, list_type: ListType, config_id: int, ip: str):
-        cursor = self.conn.cursor()
-
-        ip = ip.strip()
-        
-        cursor.execute(f"""
-            DELETE FROM access_control
-            WHERE config_id = %s 
-                AND ip_address = %s 
-                AND list_type = '{list_type.value}';
-        """, (config_id, ip))
 
         self.conn.commit()
