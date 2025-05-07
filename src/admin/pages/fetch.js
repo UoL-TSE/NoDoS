@@ -13,6 +13,12 @@ export function fetchAPI(method, endpoint, body=null) {
         _token = window.sessionStorage.getItem("token");
         
         if (_token === null) {
+            if (!redirecting) {
+                redirecting = true;
+                alert("You are not logged in, please log in and try again.");
+                window.location.href = "/pages/login.html";
+            }
+
             throw "No token specified";
         }
     }
