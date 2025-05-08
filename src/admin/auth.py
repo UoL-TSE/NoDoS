@@ -36,7 +36,7 @@ class _AuthHandler():
             user_id = int(payload['sub'])
 
             db = DB()
-            if not db.get_user(user_id):
+            if not db.user_id_exists(user_id):
                 raise HTTPException(status_code=401, detail='User not found')
             
             return user_id
