@@ -3,14 +3,14 @@ let redirecting = false;
 
 
 export function setToken(token) {
-    window.sessionStorage.setItem("token", token);
+    window.localStorage.setItem("token", token);
     _token = token;
 }
 
 
 export function fetchAPI(method, endpoint, body=null) {
     if (_token === null) {
-        _token = window.sessionStorage.getItem("token");
+        _token = window.localStorage.getItem("token");
         
         if (_token === null) {
             if (!redirecting) {
