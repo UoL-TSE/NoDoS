@@ -3,6 +3,7 @@ from fastapi import HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
+from db import DB
 
 
 class _AuthHandler():
@@ -29,11 +30,18 @@ class _AuthHandler():
         )
 
     def decode_token(self, token) -> int:
+
         try:
             payload = jwt.decode(token, self.secret, algorithms=['HS256'])
-            return int(payload['sub'])
+            user_id = int(payload['sub'])
+
+            db = DB()
+            if not db.get_user(user_id):
+                raise HTTPException(status_code=401, detail='User not found')
+            
+            return user_id
         except jwt.ExpiredSignatureError:
-            raise HTTPException(status_code=401, detail='Signature has expired')
+            raise HTTPException(status_code=401, detail='Token expired')
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail='Invalid token')
 

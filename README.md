@@ -25,6 +25,8 @@ When modifying anything in the `mysql_init` folder, you need to remove the docke
 To do this just execute the command `docker compose down --volumes` and start it again regularly.<br>
 WARNING! THIS WILL DELETE ANY DATA INSIDE THE DATABASE!
 
+To access the database on MySql Workbench the required password for port 3306 is `nodos-pass`.
+
 
 ### Running the proxy
 #### Creating a virtual environment
