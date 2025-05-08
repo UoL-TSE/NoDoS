@@ -25,6 +25,7 @@ app.mount("/pages", StaticFiles(directory=pages_dir), "pages")
 def register(auth_details: AuthDetails) -> None:
 
     auth_details.username = auth_details.username.lower()
+    auth_details.password = auth_handler.get_password_hash(auth_details.password)
     
     if not (auth_details.username.endswith('@students.lincoln.ac.uk') or auth_details.username.endswith('@lincoln.ac.uk')):
         raise HTTPException(status_code=400, detail='Username must end with @students.lincoln.ac.uk or @lincoln.ac.uk')

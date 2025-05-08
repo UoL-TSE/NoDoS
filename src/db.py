@@ -1,7 +1,6 @@
 from enum import Enum
 import MySQLdb
 
-from admin.auth import auth_handler
 from db_exceptions import *
 from models import AuthDetails, Config, Configs, IPAddresses, MetaConfig
 from conn_pool import conn_pool
@@ -37,10 +36,8 @@ class DB:
         if self.username_exists(auth_details.username):
             raise UsernameTakenException(auth_details.username)
  
-        hashed_password = auth_handler.get_password_hash(auth_details.password)
-
         cursor = self.conn.cursor()
-        cursor.execute("INSERT INTO users (name, password) VALUES (%s, %s)", (auth_details.username, hashed_password))
+        cursor.execute("INSERT INTO users (name, password) VALUES (%s, %s)", (auth_details.username, auth_details.password))
         self.conn.commit()
 
     def delete_user(self, user_id: int):
