@@ -62,52 +62,6 @@ def delete_user(user_id: int = Depends(auth_handler.auth_wrapper)) -> None:
     db.delete_user(user_id)
 
 
-# Spawn instance of proxy
-@app.post("/proxy/new/{config_id}", status_code=201, tags=["Proxies"])
-async def new_proxy(config_id: int, user_id: int = Depends(auth_handler.auth_wrapper)) -> ProxyID:
-    db = DB()
-
-    try:
-        config = db.get_config(user_id, config_id)
-    except ConfigNotFoundException as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-    proxy_id = await proxy_manager.new(user_id, config_id, config)
-    return ProxyID(proxy_id=proxy_id)
-
-
-# Delete an instance of a proxy
-@app.delete("/proxy/{proxy_id}", tags=["Proxies"])
-async def terminate_proxy(proxy_id: int, user_id: int = Depends(auth_handler.auth_wrapper)):
-    try:
-        proxy_manager.terminate(proxy_id)
-    except ProxyNotFound as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    
-
-# Get all proxies that are running
-@app.get("/proxy/all", tags=["Proxies"])
-async def all_proxies(user_id: int = Depends(auth_handler.auth_wrapper)) -> Proxies:
-    proxies = proxy_manager.allproxies()
-
-    if not proxies:
-        raise HTTPException(status_code=404, detail="No proxies running")
-
-    return Proxies(
-        proxies=[
-            Proxy(
-                proxy_id=i,
-                running=proxy.process.is_alive(),
-                exit_code=proxy.exit_code,
-                error_message=proxy.error_message,
-                config_id=proxy.config_id,
-                config=proxy.config
-            )
-            for i, proxy in enumerate(proxies) if proxy
-        ]
-    )
-
-
 # Create a new config
 @app.post("/config/new", status_code=201, tags=["Configs"])
 async def new_config(config: Config, user_id: int = Depends(auth_handler.auth_wrapper)) -> ConfigID:
@@ -164,6 +118,52 @@ async def update_config(config_id: int, config: Config, user_id: int = Depends(a
         db.update_config(user_id, config_id, config)
     except ConfigNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+# Spawn instance of proxy
+@app.post("/proxy/new/{config_id}", status_code=201, tags=["Proxies"])
+async def new_proxy(config_id: int, user_id: int = Depends(auth_handler.auth_wrapper)) -> ProxyID:
+    db = DB()
+
+    try:
+        config = db.get_config(user_id, config_id)
+    except ConfigNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+    proxy_id = await proxy_manager.new(user_id, config_id, config)
+    return ProxyID(proxy_id=proxy_id)
+
+
+# Delete an instance of a proxy
+@app.delete("/proxy/{proxy_id}", tags=["Proxies"])
+async def terminate_proxy(proxy_id: int, user_id: int = Depends(auth_handler.auth_wrapper)):
+    try:
+        proxy_manager.terminate(proxy_id)
+    except ProxyNotFound as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    
+
+# Get all proxies that are running
+@app.get("/proxy/all", tags=["Proxies"])
+async def all_proxies(user_id: int = Depends(auth_handler.auth_wrapper)) -> Proxies:
+    proxies = proxy_manager.allproxies()
+
+    if not proxies:
+        raise HTTPException(status_code=404, detail="No proxies running")
+
+    return Proxies(
+        proxies=[
+            Proxy(
+                proxy_id=i,
+                running=proxy.process.is_alive(),
+                exit_code=proxy.exit_code,
+                error_message=proxy.error_message,
+                config_id=proxy.config_id,
+                config=proxy.config
+            )
+            for i, proxy in enumerate(proxies) if proxy
+        ]
+    )
 
 
 # Shows all the IP addresses in the whitelist
